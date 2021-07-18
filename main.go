@@ -6,6 +6,7 @@ import (
   "os"
   "crypto/sha256"
   "math/bits"
+  "time"
 )
 
 var (
@@ -36,6 +37,7 @@ func getAllSalt(){
 func main(){
   fmt.Println("starting")
   defer fmt.Println("all done")
+  lz:=flag.Int("b", 24, "number of leading zeros");
   
   flag.Parse()
   go getAllSalt()
@@ -46,17 +48,16 @@ func main(){
   }
   key:=args[0]
   bestkey:=""
-  blz:=0
   for str:= range salt {
     str=key+"-"+str
     bb:=sha256.Sum256([]byte(str))
     for k:=0;k<len(bb);k++{
       if bb[k]!=0 {
         k=k*8+bits.LeadingZeros8(bb[k]);
-        if k>=blz {
+        if k>= *lz {
           bestkey=str
-          blz=k
-          fmt.Printf("%s -> %d\n",bestkey,blz);
+          t:=time.Now()
+          fmt.Printf("%s: %s -> %d\n",t.Format("15:04:05"),bestkey,k);
         }
         break
       }
